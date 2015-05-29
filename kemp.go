@@ -6,7 +6,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"strings"
+	"net/url"
 )
 
 type Config struct {
@@ -81,12 +81,12 @@ func (c *Client) Set(param, value string) (string, error) {
 func (c *Client) Request(cmd string, parameters map[string]string) (map[string]string, error) {
 	result := make(map[string]string)
 
-	var params []string
+	params := url.Values{}
 	for key, val := range parameters {
-		params = append(params, fmt.Sprintf("%s=%s", key, val))
+		params.Set(key, val)
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s?%s", c.endpoint, cmd, strings.Join(params, "&")), nil)
+	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s?%s", c.endpoint, cmd, params.Encode()), nil)
 	if err != nil {
 		return result, err
 	}
