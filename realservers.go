@@ -1,9 +1,6 @@
 package kempclient
 
-import (
-	"encoding/xml"
-	"fmt"
-)
+import "encoding/xml"
 
 type RealServerResponse struct {
 	Debug   string     `xml:",innerxml"`
@@ -27,20 +24,32 @@ type RealServer struct {
 	Enable         string
 }
 
-func (c *Client) AddRealServer(vs VirtualService, rs RealServer) error {
+func (c *Client) AddRealServerById(id string, rs RealServer) error {
 	parameters := make(map[string]string)
-	parameters["vs"] = vs.IPAddress
-	parameters["port"] = vs.Port
-	parameters["prot"] = vs.Protocol
+	parameters["vs"] = id
 	parameters["rs"] = rs.IPAddress
 	parameters["rsport"] = rs.Port
 
+	return c.addRealServer(parameters)
+}
+
+func (c *Client) AddRealServerByData(ip, port, protocol string, rs RealServer) error {
+	parameters := make(map[string]string)
+	parameters["vs"] = ip
+	parameters["port"] = port
+	parameters["prot"] = protocol
+	parameters["rs"] = rs.IPAddress
+	parameters["rsport"] = rs.Port
+
+	return c.addRealServer(parameters)
+}
+
+func (c *Client) addRealServer(parameters map[string]string) error {
 	data := RealServerResponse{}
-	err := c.Request("addrs", parameters, data)
+	err := c.Request("addrs", parameters, &data)
 	if err != nil {
 		return err
 	}
 
-	fmt.Println(data)
 	return nil
 }

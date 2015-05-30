@@ -79,7 +79,7 @@ func (c *Client) Set(param, value string) (string, error) {
 	parameters := make(map[string]string)
 	parameters["param"] = param
 	parameters["value"] = value
-	err = c.Request("set", parameters, ParameterResponse{})
+	err = c.Request("set", parameters, &ParameterResponse{})
 	if err != nil {
 		return "", err
 	}
