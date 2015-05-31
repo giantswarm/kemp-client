@@ -1,6 +1,10 @@
 package kempclient
 
-import "encoding/xml"
+import (
+	"encoding/xml"
+	"fmt"
+	"net"
+)
 
 type RealServerResponse struct {
 	Debug   string     `xml:",innerxml"`
@@ -45,6 +49,13 @@ func (c *Client) AddRealServerByData(ip, port, protocol string, rs RealServer) e
 }
 
 func (c *Client) addRealServer(parameters map[string]string) error {
+	if net.ParseIP(parameters["rs"]) == nil {
+		return fmt.Errorf("%s is not a valid ip address", parameters["rs"])
+	}
+	if parameters["rs"] == "" {
+		return fmt.Errorf("A virtual service needs a port")
+	}
+
 	data := RealServerResponse{}
 	err := c.Request("addrs", parameters, &data)
 	if err != nil {

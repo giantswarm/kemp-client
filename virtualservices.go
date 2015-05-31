@@ -93,6 +93,21 @@ func (c *Client) ListVirtualServices() ([]VirtualService, error) {
 	return data.Data.VS, nil
 }
 
+func (c *Client) FindVirtualServiceByName(name string) (VirtualService, error) {
+	list, err := c.ListVirtualServices()
+	if err != nil {
+		return VirtualService{}, err
+	}
+
+	for _, vs := range list {
+		if vs.Name == name {
+			return vs, nil
+		}
+	}
+
+	return VirtualService{}, nil
+}
+
 func (c *Client) ShowVirtualServiceByData(ip, port, protocol string) (VirtualService, error) {
 	parameters := make(map[string]string)
 	parameters["vs"] = ip

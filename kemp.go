@@ -111,7 +111,7 @@ func (c *Client) Request(cmd string, parameters map[string]string, data interfac
 	}
 
 	if res.StatusCode >= 400 {
-		return c.parseError(res.Body)
+		return c.parseError(res.StatusCode, res.Body)
 	}
 
 	return c.parseSuccess(res.Body, data)

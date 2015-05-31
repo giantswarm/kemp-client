@@ -2,7 +2,6 @@ package kempclient
 
 import (
 	"encoding/xml"
-	"errors"
 	"fmt"
 	"io"
 
@@ -21,7 +20,7 @@ func (c *Client) parseResponse(reader io.Reader, result interface{}) error {
 	return decoder.Decode(result)
 }
 
-func (c *Client) parseError(reader io.Reader) error {
+func (c *Client) parseError(code int, reader io.Reader) error {
 	errorResponse := ErrorResponse{}
 	err := c.parseResponse(reader, &errorResponse)
 	if err != nil {
@@ -31,7 +30,7 @@ func (c *Client) parseError(reader io.Reader) error {
 		fmt.Println("DEBUG:", errorResponse.Debug)
 	}
 
-	return errors.New(errorResponse.Error)
+	return newError(code, errorResponse.Error)
 }
 
 func (c *Client) parseSuccess(reader io.Reader, data interface{}) error {
