@@ -64,3 +64,40 @@ func (c *Client) addRealServer(parameters map[string]string) error {
 
 	return nil
 }
+
+func (c *Client) DeleteRealServerById(id string, rs RealServer) error {
+	parameters := make(map[string]string)
+	parameters["vs"] = id
+	parameters["rs"] = rs.IPAddress
+	parameters["rsport"] = rs.Port
+
+	return c.deleteRealServer(parameters)
+}
+
+func (c *Client) DeleteRealServerByData(ip, port, protocol string, rs RealServer) error {
+	parameters := make(map[string]string)
+	parameters["vs"] = ip
+	parameters["port"] = port
+	parameters["prot"] = protocol
+	parameters["rs"] = rs.IPAddress
+	parameters["rsport"] = rs.Port
+
+	return c.deleteRealServer(parameters)
+}
+
+func (c *Client) deleteRealServer(parameters map[string]string) error {
+	if net.ParseIP(parameters["rs"]) == nil {
+		return fmt.Errorf("%s is not a valid ip address", parameters["rs"])
+	}
+	if parameters["rs"] == "" {
+		return fmt.Errorf("A virtual service needs a port")
+	}
+
+	data := RealServerResponse{}
+	err := c.Request("delrs", parameters, &data)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
