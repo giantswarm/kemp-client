@@ -30,7 +30,7 @@ type RealServer struct {
 	Enable         string
 }
 
-func (c *Client) AddRealServerById(id int, rs RealServer) error {
+func (c *Client) AddRealServerByID(id int, rs RealServer) error {
 	parameters := make(map[string]string)
 	parameters["vs"] = string(id)
 	parameters["rs"] = rs.IPAddress
@@ -70,7 +70,7 @@ func (c *Client) addRealServer(parameters map[string]string) error {
 	return nil
 }
 
-func (c *Client) DeleteRealServerById(id string, rs RealServer) error {
+func (c *Client) DeleteRealServerByID(id string, rs RealServer) error {
 	parameters := make(map[string]string)
 	parameters["vs"] = id
 	parameters["rs"] = rs.IPAddress

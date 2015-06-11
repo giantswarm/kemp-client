@@ -119,7 +119,7 @@ func (c *Client) ShowVirtualServiceByData(ip, port, protocol string) (VirtualSer
 	return c.showVirtualService(parameters)
 }
 
-func (c *Client) ShowVirtualServiceById(id string) (VirtualService, error) {
+func (c *Client) ShowVirtualServiceByID(id string) (VirtualService, error) {
 	parameters := make(map[string]string)
 	parameters["vs"] = id
 
@@ -140,7 +140,7 @@ func (c *Client) showVirtualService(parameters map[string]string) (VirtualServic
 	return data.VS, nil
 }
 
-func (c *Client) DeleteVirtualServiceById(id string) error {
+func (c *Client) DeleteVirtualServiceByID(id string) error {
 	parameters := make(map[string]string)
 	parameters["vs"] = id
 
