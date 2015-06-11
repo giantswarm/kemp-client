@@ -18,6 +18,18 @@ type VirtualServiceList struct {
 	VS []VirtualService `xml:",any"`
 }
 
+type VirtualServiceParams struct {
+	Name            string
+	IPAddress       string
+	Port            string
+	Protocol        string
+	CheckType       string
+	CheckUrl        string
+	CheckPort       string
+	SSLAcceleration bool
+	Transparent     bool
+}
+
 type VirtualServiceResponse struct {
 	Debug   string         `xml:",innerxml"`
 	XMLName xml.Name       `xml:"Response"`
@@ -170,7 +182,7 @@ func (c *Client) deleteVirtualService(parameters map[string]string) error {
 	return nil
 }
 
-func (c *Client) UpdateVirtualService(id string, vs VirtualService) (VirtualService, error) {
+func (c *Client) UpdateVirtualService(id string, vs VirtualServiceParams) (VirtualService, error) {
 	parameters := make(map[string]string)
 	parameters["vs"] = id
 
@@ -186,8 +198,10 @@ func (c *Client) UpdateVirtualService(id string, vs VirtualService) (VirtualServ
 	if vs.Protocol != "" {
 		parameters["prot"] = vs.Protocol
 	}
-	if vs.Transparent != "" {
-		parameters["transparent"] = vs.Transparent
+	if vs.Transparent {
+		parameters["transparent"] = "Y"
+	} else {
+		parameters["transparent"] = "N"
 	}
 	if vs.CheckType != "" {
 		parameters["checktype"] = vs.CheckType
@@ -198,8 +212,10 @@ func (c *Client) UpdateVirtualService(id string, vs VirtualService) (VirtualServ
 	if vs.CheckPort != "" {
 		parameters["checkport"] = vs.CheckPort
 	}
-	if vs.SSLAcceleration != "" {
-		parameters["sslacceleration"] = vs.SSLAcceleration
+	if vs.SSLAcceleration {
+		parameters["sslacceleration"] = "Y"
+	} else {
+		parameters["sslacceleration"] = "N"
 	}
 
 	data := VirtualServiceResponse{}
@@ -215,7 +231,7 @@ func (c *Client) UpdateVirtualService(id string, vs VirtualService) (VirtualServ
 	return data.VS, nil
 }
 
-func (c *Client) AddVirtualService(vs VirtualService) (VirtualService, error) {
+func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, error) {
 	parameters := make(map[string]string)
 	if net.ParseIP(vs.IPAddress) == nil {
 		return VirtualService{}, errgo.Newf("%s is not a valid ip address", vs.IPAddress)
@@ -234,8 +250,10 @@ func (c *Client) AddVirtualService(vs VirtualService) (VirtualService, error) {
 	if vs.Name != "" {
 		parameters["nickname"] = vs.Name
 	}
-	if vs.Transparent != "" {
-		parameters["transparent"] = vs.Transparent
+	if vs.Transparent {
+		parameters["transparent"] = "Y"
+	} else {
+		parameters["transparent"] = "N"
 	}
 	if vs.CheckType != "" {
 		parameters["checktype"] = vs.CheckType
@@ -246,8 +264,10 @@ func (c *Client) AddVirtualService(vs VirtualService) (VirtualService, error) {
 	if vs.CheckPort != "" {
 		parameters["checkport"] = vs.CheckPort
 	}
-	if vs.SSLAcceleration != "" {
-		parameters["sslacceleration"] = vs.SSLAcceleration
+	if vs.SSLAcceleration {
+		parameters["sslacceleration"] = "Y"
+	} else {
+		parameters["sslacceleration"] = "N"
 	}
 
 	data := VirtualServiceResponse{}
