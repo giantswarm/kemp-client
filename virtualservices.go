@@ -37,7 +37,7 @@ type VirtualServiceResponse struct {
 }
 
 type VirtualService struct {
-	ID               string `xml:"Index"`
+	ID               int    `xml:"Index"`
 	Name             string `xml:"NickName"`
 	IPAddress        string `xml:"VSAddress"`
 	Port             string `xml:"VSPort"`
@@ -68,7 +68,7 @@ type VirtualService struct {
 	CheckUseGet      string
 	SSLRewrite       string
 	VStype           string
-	FollowVSID       string
+	FollowVSID       int
 	Schedule         string
 	CheckType        string
 	PersistTimeout   string
@@ -82,7 +82,7 @@ type VirtualService struct {
 	InputAuthMode    string
 	OutputAuthMode   string
 	MasterVS         string
-	MasterVSID       string
+	MasterVSID       int
 	AddVia           string
 	TlsType          string
 	NeedHostName     string
@@ -131,9 +131,9 @@ func (c *Client) ShowVirtualServiceByData(ip, port, protocol string) (VirtualSer
 	return c.showVirtualService(parameters)
 }
 
-func (c *Client) ShowVirtualServiceByID(id string) (VirtualService, error) {
+func (c *Client) ShowVirtualServiceByID(id int) (VirtualService, error) {
 	parameters := make(map[string]string)
-	parameters["vs"] = id
+	parameters["vs"] = string(id)
 
 	return c.showVirtualService(parameters)
 }
@@ -152,9 +152,9 @@ func (c *Client) showVirtualService(parameters map[string]string) (VirtualServic
 	return data.VS, nil
 }
 
-func (c *Client) DeleteVirtualServiceByID(id string) error {
+func (c *Client) DeleteVirtualServiceByID(id int) error {
 	parameters := make(map[string]string)
-	parameters["vs"] = id
+	parameters["vs"] = string(id)
 
 	return c.deleteVirtualService(parameters)
 }
@@ -182,9 +182,9 @@ func (c *Client) deleteVirtualService(parameters map[string]string) error {
 	return nil
 }
 
-func (c *Client) UpdateVirtualService(id string, vs VirtualServiceParams) (VirtualService, error) {
+func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualService, error) {
 	parameters := make(map[string]string)
-	parameters["vs"] = id
+	parameters["vs"] = string(id)
 
 	if vs.Name != "" {
 		parameters["nickname"] = vs.Name
