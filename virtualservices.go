@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net"
+	"strconv"
 
 	"github.com/juju/errgo"
 )
@@ -133,7 +134,7 @@ func (c *Client) ShowVirtualServiceByData(ip, port, protocol string) (VirtualSer
 
 func (c *Client) ShowVirtualServiceByID(id int) (VirtualService, error) {
 	parameters := make(map[string]string)
-	parameters["vs"] = string(id)
+	parameters["vs"] = strconv.Itoa(id)
 
 	return c.showVirtualService(parameters)
 }
@@ -154,7 +155,7 @@ func (c *Client) showVirtualService(parameters map[string]string) (VirtualServic
 
 func (c *Client) DeleteVirtualServiceByID(id int) error {
 	parameters := make(map[string]string)
-	parameters["vs"] = string(id)
+	parameters["vs"] = strconv.Itoa(id)
 
 	return c.deleteVirtualService(parameters)
 }
@@ -184,7 +185,7 @@ func (c *Client) deleteVirtualService(parameters map[string]string) error {
 
 func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualService, error) {
 	parameters := make(map[string]string)
-	parameters["vs"] = string(id)
+	parameters["vs"] = strconv.Itoa(id)
 
 	if vs.Name != "" {
 		parameters["nickname"] = vs.Name

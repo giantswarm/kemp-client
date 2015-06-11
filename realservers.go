@@ -4,6 +4,7 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net"
+	"strconv"
 
 	"github.com/juju/errgo"
 )
@@ -32,7 +33,7 @@ type RealServer struct {
 
 func (c *Client) AddRealServerByID(id int, rs RealServer) error {
 	parameters := make(map[string]string)
-	parameters["vs"] = string(id)
+	parameters["vs"] = strconv.Itoa(id)
 	parameters["rs"] = rs.IPAddress
 	parameters["rsport"] = rs.Port
 
@@ -72,7 +73,7 @@ func (c *Client) addRealServer(parameters map[string]string) error {
 
 func (c *Client) DeleteRealServerByID(id int, rs RealServer) error {
 	parameters := make(map[string]string)
-	parameters["vs"] = string(id)
+	parameters["vs"] = strconv.Itoa(id)
 	parameters["rs"] = rs.IPAddress
 	parameters["rsport"] = rs.Port
 
