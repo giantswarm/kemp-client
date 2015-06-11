@@ -24,7 +24,7 @@ type VirtualServiceParams struct {
 	Port            string
 	Protocol        string
 	CheckType       string
-	CheckUrl        string
+	CheckURL        string
 	CheckPort       string
 	SSLAcceleration bool
 	Transparent     bool
@@ -62,7 +62,7 @@ type VirtualService struct {
 	ClientCert       string
 	ErrorCode        string
 	CertFile         string
-	CheckUrl         string
+	CheckURL         string `xml:"CheckUrl"`
 	CheckUse11       string `xml:"CheckUse1.1"`
 	MatchLen         string
 	CheckUseGet      string
@@ -206,8 +206,8 @@ func (c *Client) UpdateVirtualService(id string, vs VirtualServiceParams) (Virtu
 	if vs.CheckType != "" {
 		parameters["checktype"] = vs.CheckType
 	}
-	if vs.CheckUrl != "" {
-		parameters["checkurl"] = vs.CheckUrl
+	if vs.CheckURL != "" {
+		parameters["checkurl"] = vs.CheckURL
 	}
 	if vs.CheckPort != "" {
 		parameters["checkport"] = vs.CheckPort
@@ -258,8 +258,8 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 	if vs.CheckType != "" {
 		parameters["checktype"] = vs.CheckType
 	}
-	if vs.CheckUrl != "" {
-		parameters["checkurl"] = vs.CheckUrl
+	if vs.CheckURL != "" {
+		parameters["checkurl"] = vs.CheckURL
 	}
 	if vs.CheckPort != "" {
 		parameters["checkport"] = vs.CheckPort
