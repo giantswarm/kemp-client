@@ -95,10 +95,10 @@ func (c *Client) Request(cmd string, parameters map[string]string, data interfac
 		params.Set(key, val)
 	}
 
-	requestUrl := fmt.Sprintf("%s%s?%s", c.endpoint, cmd, params.Encode())
-	req, err := http.NewRequest("GET", requestUrl, nil)
+	requestURL := fmt.Sprintf("%s%s?%s", c.endpoint, cmd, params.Encode())
+	req, err := http.NewRequest("GET", requestURL, nil)
 	if err != nil {
-		return errgo.NoteMask(err, fmt.Sprintf("kemp request to '%s' failed", requestUrl), errgo.Any)
+		return errgo.NoteMask(err, fmt.Sprintf("kemp request to '%s' failed", requestURL), errgo.Any)
 	}
 
 	req.SetBasicAuth(c.user, c.password)
@@ -110,7 +110,7 @@ func (c *Client) Request(cmd string, parameters map[string]string, data interfac
 
 	res, err := client.Do(req)
 	if err != nil {
-		return errgo.NoteMask(err, fmt.Sprintf("kemp request to '%s' failed", requestUrl), errgo.Any)
+		return errgo.NoteMask(err, fmt.Sprintf("kemp request to '%s' failed", requestURL), errgo.Any)
 	}
 
 	if res.StatusCode >= 400 {
