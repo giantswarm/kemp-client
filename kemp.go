@@ -6,6 +6,8 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/juju/errgo"
 )
 
 type Config struct {
@@ -55,7 +57,7 @@ func (c *Client) Get(param string) (string, error) {
 	data := ParameterResponse{}
 	err := c.Request("get", parameters, &data)
 	if err != nil {
-		return "", err
+		return "", errgo.NoteMask(err, fmt.Sprintf("kemp get '%s' failed", param), errgo.Any)
 	}
 
 	if c.debug {
@@ -73,7 +75,7 @@ func (c *Client) Get(param string) (string, error) {
 func (c *Client) Set(param, value string) (string, error) {
 	data, err := c.Get(param)
 	if err != nil {
-		return "", err
+		return "", errgo.Mask(err)
 	}
 
 	parameters := make(map[string]string)
@@ -81,7 +83,7 @@ func (c *Client) Set(param, value string) (string, error) {
 	parameters["value"] = value
 	err = c.Request("set", parameters, &ParameterResponse{})
 	if err != nil {
-		return "", err
+		return "", errgo.NoteMask(err, fmt.Sprintf("kemp set '%s %s' failed", param, value), errgo.Any)
 	}
 
 	return data, nil
@@ -93,9 +95,10 @@ func (c *Client) Request(cmd string, parameters map[string]string, data interfac
 		params.Set(key, val)
 	}
 
-	req, err := http.NewRequest("GET", fmt.Sprintf("%s%s?%s", c.endpoint, cmd, params.Encode()), nil)
+	requestUrl := fmt.Sprintf("%s%s?%s", c.endpoint, cmd, params.Encode())
+	req, err := http.NewRequest("GET", requestUrl, nil)
 	if err != nil {
-		return err
+		return errgo.NoteMask(err, fmt.Sprintf("kemp request to '%s' failed", requestUrl), errgo.Any)
 	}
 
 	req.SetBasicAuth(c.user, c.password)
@@ -107,7 +110,7 @@ func (c *Client) Request(cmd string, parameters map[string]string, data interfac
 
 	res, err := client.Do(req)
 	if err != nil {
-		return err
+		return errgo.NoteMask(err, fmt.Sprintf("kemp request to '%s' failed", requestUrl), errgo.Any)
 	}
 
 	if res.StatusCode >= 400 {

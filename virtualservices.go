@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net"
+
+	"github.com/juju/errgo"
 )
 
 type VirtualServiceListResponse struct {
@@ -83,7 +85,7 @@ func (c *Client) ListVirtualServices() ([]VirtualService, error) {
 	data := VirtualServiceListResponse{}
 	err := c.Request("listvs", parameters, &data)
 	if err != nil {
-		return []VirtualService{}, err
+		return []VirtualService{}, errgo.NoteMask(err, "kemp could not list virtual services", errgo.Any)
 	}
 
 	if c.debug {
@@ -96,7 +98,7 @@ func (c *Client) ListVirtualServices() ([]VirtualService, error) {
 func (c *Client) FindVirtualServiceByName(name string) (VirtualService, error) {
 	list, err := c.ListVirtualServices()
 	if err != nil {
-		return VirtualService{}, err
+		return VirtualService{}, errgo.Mask(err)
 	}
 
 	for _, vs := range list {
@@ -128,7 +130,7 @@ func (c *Client) showVirtualService(parameters map[string]string) (VirtualServic
 	data := VirtualServiceResponse{}
 	err := c.Request("showvs", parameters, &data)
 	if err != nil {
-		return VirtualService{}, err
+		return VirtualService{}, errgo.NoteMask(err, fmt.Sprintf("kemp unable to show virtual service '%#v'", parameters), errgo.Any)
 	}
 
 	if c.debug {
@@ -158,7 +160,7 @@ func (c *Client) deleteVirtualService(parameters map[string]string) error {
 	data := VirtualServiceResponse{}
 	err := c.Request("delvs", parameters, &data)
 	if err != nil {
-		return err
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to delete virtual service '%#v'", parameters), errgo.Any)
 	}
 
 	if c.debug {
@@ -203,7 +205,7 @@ func (c *Client) UpdateVirtualService(id string, vs VirtualService) (VirtualServ
 	data := VirtualServiceResponse{}
 	err := c.Request("modvs", parameters, &data)
 	if err != nil {
-		return VirtualService{}, err
+		return VirtualService{}, errgo.NoteMask(err, fmt.Sprintf("kemp unable to update virtual service '%#v'", parameters), errgo.Any)
 	}
 
 	if c.debug {
@@ -216,13 +218,13 @@ func (c *Client) UpdateVirtualService(id string, vs VirtualService) (VirtualServ
 func (c *Client) AddVirtualService(vs VirtualService) (VirtualService, error) {
 	parameters := make(map[string]string)
 	if net.ParseIP(vs.IPAddress) == nil {
-		return VirtualService{}, fmt.Errorf("%s is not a valid ip address", vs.IPAddress)
+		return VirtualService{}, errgo.Newf("%s is not a valid ip address", vs.IPAddress)
 	}
 	if vs.Port == "" {
-		return VirtualService{}, fmt.Errorf("A virtual service needs a port")
+		return VirtualService{}, errgo.New("A virtual service needs a port")
 	}
 	if vs.Protocol != "tcp" && vs.Protocol != "udp" {
-		return VirtualService{}, fmt.Errorf("The protocol of a virtual service is either tcp or udp")
+		return VirtualService{}, errgo.New("The protocol of a virtual service is either tcp or udp")
 	}
 
 	parameters["vs"] = vs.IPAddress
@@ -251,7 +253,7 @@ func (c *Client) AddVirtualService(vs VirtualService) (VirtualService, error) {
 	data := VirtualServiceResponse{}
 	err := c.Request("addvs", parameters, &data)
 	if err != nil {
-		return VirtualService{}, err
+		return VirtualService{}, errgo.NoteMask(err, fmt.Sprintf("kemp unable to add virtual service '%#v'", parameters), errgo.Any)
 	}
 
 	if c.debug {

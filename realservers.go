@@ -4,6 +4,8 @@ import (
 	"encoding/xml"
 	"fmt"
 	"net"
+
+	"github.com/juju/errgo"
 )
 
 type RealServerResponse struct {
@@ -50,19 +52,19 @@ func (c *Client) AddRealServerByData(ip, port, protocol string, rs RealServer) e
 
 func (c *Client) addRealServer(parameters map[string]string) error {
 	if net.ParseIP(parameters["rs"]) == nil {
-		return fmt.Errorf("%s is not a valid ip address", parameters["rs"])
+		return errgo.Newf("%s is not a valid ip address", parameters["rs"])
 	}
 	if parameters["rsport"] == "" {
-		return fmt.Errorf("A real server needs a port")
+		return errgo.New("A real server needs a port")
 	}
 	if parameters["vs"] == "" {
-		return fmt.Errorf("The virtual service for the real server is missing")
+		return errgo.New("The virtual service for the real server is missing")
 	}
 
 	data := RealServerResponse{}
 	err := c.Request("addrs", parameters, &data)
 	if err != nil {
-		return err
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to delete real server '%#v'", parameters), errgo.Any)
 	}
 
 	return nil
@@ -90,19 +92,19 @@ func (c *Client) DeleteRealServerByData(ip, port, protocol string, rs RealServer
 
 func (c *Client) deleteRealServer(parameters map[string]string) error {
 	if net.ParseIP(parameters["rs"]) == nil {
-		return fmt.Errorf("%s is not a valid ip address", parameters["rs"])
+		return errgo.Newf("%s is not a valid ip address", parameters["rs"])
 	}
 	if parameters["rsport"] == "" {
-		return fmt.Errorf("A real server needs a port")
+		return errgo.New("A real server needs a port")
 	}
 	if parameters["vs"] == "" {
-		return fmt.Errorf("The virtual service for the real server is missing")
+		return errgo.New("The virtual service for the real server is missing")
 	}
 
 	data := RealServerResponse{}
 	err := c.Request("delrs", parameters, &data)
 	if err != nil {
-		return err
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to delete real server '%#v'", parameters), errgo.Any)
 	}
 
 	return nil
