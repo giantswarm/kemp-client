@@ -28,9 +28,9 @@ type RealServer struct {
 	Enable         string
 }
 
-func (c *Client) AddRealServerById(id string, rs RealServer) error {
+func (c *Client) AddRealServerById(id int, rs RealServer) error {
 	parameters := make(map[string]string)
-	parameters["vs"] = id
+	parameters["vs"] = string(id)
 	parameters["rs"] = rs.IPAddress
 	parameters["rsport"] = rs.Port
 
@@ -52,8 +52,11 @@ func (c *Client) addRealServer(parameters map[string]string) error {
 	if net.ParseIP(parameters["rs"]) == nil {
 		return fmt.Errorf("%s is not a valid ip address", parameters["rs"])
 	}
-	if parameters["rs"] == "" {
-		return fmt.Errorf("A virtual service needs a port")
+	if parameters["rsport"] == "" {
+		return fmt.Errorf("A real server needs a port")
+	}
+	if parameters["vs"] == "" {
+		return fmt.Errorf("The virtual service for the real server is missing")
 	}
 
 	data := RealServerResponse{}
@@ -89,8 +92,11 @@ func (c *Client) deleteRealServer(parameters map[string]string) error {
 	if net.ParseIP(parameters["rs"]) == nil {
 		return fmt.Errorf("%s is not a valid ip address", parameters["rs"])
 	}
-	if parameters["rs"] == "" {
-		return fmt.Errorf("A virtual service needs a port")
+	if parameters["rsport"] == "" {
+		return fmt.Errorf("A real server needs a port")
+	}
+	if parameters["vs"] == "" {
+		return fmt.Errorf("The virtual service for the real server is missing")
 	}
 
 	data := RealServerResponse{}
