@@ -260,7 +260,7 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 	return data.VS, nil
 }
 
-func (c *Client) mapVirtualServiceParamsToRequestParams(vs VirtualServiceParams, params map[string]string) {
+func (c *Client) mapVirtualServiceParamsToRequestParams(vs VirtualServiceParams, parameters map[string]string) {
 	if vs.Name != "" {
 		parameters["nickname"] = vs.Name
 	}
