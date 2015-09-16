@@ -45,6 +45,7 @@ type VirtualServiceParams struct {
 	CheckPort       string
 	SSLAcceleration bool
 	Transparent     bool
+	AddVia          string
 }
 
 type VirtualServiceResponse struct {
@@ -203,9 +204,6 @@ func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualS
 	parameters := make(map[string]string)
 	parameters["vs"] = strconv.Itoa(id)
 
-	if vs.Name != "" {
-		parameters["nickname"] = vs.Name
-	}
 	if vs.IPAddress != "" {
 		parameters["vsaddress"] = vs.IPAddress
 	}
@@ -215,25 +213,8 @@ func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualS
 	if vs.Protocol != "" {
 		parameters["prot"] = vs.Protocol
 	}
-	if vs.Transparent {
-		parameters["transparent"] = "Y"
-	} else {
-		parameters["transparent"] = "N"
-	}
-	if vs.CheckType != "" {
-		parameters["checktype"] = vs.CheckType
-	}
-	if vs.CheckURL != "" {
-		parameters["checkurl"] = vs.CheckURL
-	}
-	if vs.CheckPort != "" {
-		parameters["checkport"] = vs.CheckPort
-	}
-	if vs.SSLAcceleration {
-		parameters["sslacceleration"] = "Y"
-	} else {
-		parameters["sslacceleration"] = "N"
-	}
+
+	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
 	data := VirtualServiceResponse{}
 	err := c.Request("modvs", parameters, &data)
@@ -264,28 +245,7 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 	parameters["port"] = vs.Port
 	parameters["prot"] = vs.Protocol
 
-	if vs.Name != "" {
-		parameters["nickname"] = vs.Name
-	}
-	if vs.Transparent {
-		parameters["transparent"] = "Y"
-	} else {
-		parameters["transparent"] = "N"
-	}
-	if vs.CheckType != "" {
-		parameters["checktype"] = vs.CheckType
-	}
-	if vs.CheckURL != "" {
-		parameters["checkurl"] = vs.CheckURL
-	}
-	if vs.CheckPort != "" {
-		parameters["checkport"] = vs.CheckPort
-	}
-	if vs.SSLAcceleration {
-		parameters["sslacceleration"] = "Y"
-	} else {
-		parameters["sslacceleration"] = "N"
-	}
+	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
 	data := VirtualServiceResponse{}
 	err := c.Request("addvs", parameters, &data)
@@ -298,4 +258,37 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 	}
 
 	return data.VS, nil
+}
+
+func (c *Client) mapVirtualServiceParamsToRequestParams(vs VirtualServiceParams, params map[string]string) {
+	if vs.Name != "" {
+		parameters["nickname"] = vs.Name
+	}
+
+	if vs.Transparent {
+		parameters["transparent"] = "Y"
+	} else {
+		parameters["transparent"] = "N"
+	}
+
+	if vs.CheckType != "" {
+		parameters["checktype"] = vs.CheckType
+	}
+	if vs.CheckURL != "" {
+		parameters["checkurl"] = vs.CheckURL
+	}
+	if vs.CheckPort != "" {
+		parameters["checkport"] = vs.CheckPort
+	}
+
+	if vs.SSLAcceleration {
+		parameters["sslacceleration"] = "Y"
+	} else {
+		parameters["sslacceleration"] = "N"
+	}
+
+	if vs.AddVia != "" {
+		parameters["addvia"] = vs.AddVia
+	}
+
 }
