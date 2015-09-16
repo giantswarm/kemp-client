@@ -9,6 +9,12 @@ import (
 	"github.com/juju/errgo"
 )
 
+// These are the options for the AddVia field.
+// In the kemp webui it relates to the realserver option under Advanced Properties > Add HTTP Headers
+//
+// Doc from the webui
+// > Select which headers are to be added to HTTP requests.
+// > X-ClientSide and X-Forwarded-For are only added to Non-Transparent Connections.
 const (
 	VSAddViaLegacyXClientSide    = "0"
 	VSAddViaNone                 = "2"
