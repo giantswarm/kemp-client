@@ -307,7 +307,7 @@ func (c *Client) mapVirtualServiceParamsToRequestParams(vs VirtualServiceParams,
 	}
 
 	if vs.VStype != "" {
-		parameters["vstype"] = vs.VSType
+		parameters["vstype"] = vs.VStype
 	}
 
 }
