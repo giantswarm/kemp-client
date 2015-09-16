@@ -9,7 +9,7 @@ import (
 	"github.com/juju/errgo"
 )
 
-// The type of the virutalserver.
+// The type of the virutalservice.
 //
 // Doc from webui:
 // > Select the type of service that will be run over this Virtual Service.
