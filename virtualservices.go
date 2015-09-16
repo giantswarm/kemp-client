@@ -9,6 +9,16 @@ import (
 	"github.com/juju/errgo"
 )
 
+const (
+	VSAddViaLegacyXClientSide    = "0"
+	VSAddViaNone                 = "2"
+	VSAddViaXClientSideWithVia   = "3"
+	VSAddViaXClientSideNoVia     = "4"
+	VSAddViaXForwardedForWithVia = "1"
+	VSAddViaXForwardedForNoVia   = "5"
+	VSAddViaViaOnly              = "6"
+)
+
 type VirtualServiceListResponse struct {
 	Debug   string             `xml:",innerxml"`
 	XMLName xml.Name           `xml:"Response"`
