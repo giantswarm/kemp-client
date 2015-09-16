@@ -9,6 +9,20 @@ import (
 	"github.com/juju/errgo"
 )
 
+// The type of the virutalserver.
+//
+// Doc from webui:
+// > Select the type of service that will be run over this Virtual Service.
+// > The LoadMaster automatically tries to determine the type of the service
+// > but the user can override this.
+const (
+	VStypeHTTP           = "http"
+	VStypeGeneric        = "gen"
+	VStypeSTARTTLS       = "tls"
+	VStypeRemoteTerminal = "ts"
+	VStypeLogInsight     = "log"
+)
+
 // These are the options for the AddVia field.
 // In the kemp webui it relates to the realserver option under Advanced Properties > Add HTTP Headers
 //
@@ -46,6 +60,7 @@ type VirtualServiceParams struct {
 	SSLAcceleration bool
 	Transparent     bool
 	AddVia          string
+	VStype          string
 }
 
 type VirtualServiceResponse struct {
@@ -289,6 +304,10 @@ func (c *Client) mapVirtualServiceParamsToRequestParams(vs VirtualServiceParams,
 
 	if vs.AddVia != "" {
 		parameters["addvia"] = vs.AddVia
+	}
+
+	if vs.VStype != "" {
+		parameters["vstype"] = vs.VSType
 	}
 
 }
