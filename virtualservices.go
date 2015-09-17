@@ -9,6 +9,36 @@ import (
 	"github.com/juju/errgo"
 )
 
+// The type of the virutalservice.
+//
+// Doc from webui:
+// > Select the type of service that will be run over this Virtual Service.
+// > The LoadMaster automatically tries to determine the type of the service
+// > but the user can override this.
+const (
+	VStypeHTTP           = "http"
+	VStypeGeneric        = "gen"
+	VStypeSTARTTLS       = "tls"
+	VStypeRemoteTerminal = "ts"
+	VStypeLogInsight     = "log"
+)
+
+// These are the options for the AddVia field.
+// In the kemp webui it relates to the realserver option under Advanced Properties > Add HTTP Headers
+//
+// Doc from the webui
+// > Select which headers are to be added to HTTP requests.
+// > X-ClientSide and X-Forwarded-For are only added to Non-Transparent Connections.
+const (
+	VSAddViaLegacyXClientSide    = "0"
+	VSAddViaNone                 = "2"
+	VSAddViaXClientSideWithVia   = "3"
+	VSAddViaXClientSideNoVia     = "4"
+	VSAddViaXForwardedForWithVia = "1"
+	VSAddViaXForwardedForNoVia   = "5"
+	VSAddViaViaOnly              = "6"
+)
+
 type VirtualServiceListResponse struct {
 	Debug   string             `xml:",innerxml"`
 	XMLName xml.Name           `xml:"Response"`
@@ -29,6 +59,8 @@ type VirtualServiceParams struct {
 	CheckPort       string
 	SSLAcceleration bool
 	Transparent     bool
+	AddVia          string
+	VStype          string
 }
 
 type VirtualServiceResponse struct {
@@ -187,9 +219,6 @@ func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualS
 	parameters := make(map[string]string)
 	parameters["vs"] = strconv.Itoa(id)
 
-	if vs.Name != "" {
-		parameters["nickname"] = vs.Name
-	}
 	if vs.IPAddress != "" {
 		parameters["vsaddress"] = vs.IPAddress
 	}
@@ -199,25 +228,8 @@ func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualS
 	if vs.Protocol != "" {
 		parameters["prot"] = vs.Protocol
 	}
-	if vs.Transparent {
-		parameters["transparent"] = "Y"
-	} else {
-		parameters["transparent"] = "N"
-	}
-	if vs.CheckType != "" {
-		parameters["checktype"] = vs.CheckType
-	}
-	if vs.CheckURL != "" {
-		parameters["checkurl"] = vs.CheckURL
-	}
-	if vs.CheckPort != "" {
-		parameters["checkport"] = vs.CheckPort
-	}
-	if vs.SSLAcceleration {
-		parameters["sslacceleration"] = "Y"
-	} else {
-		parameters["sslacceleration"] = "N"
-	}
+
+	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
 	data := VirtualServiceResponse{}
 	err := c.Request("modvs", parameters, &data)
@@ -248,28 +260,7 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 	parameters["port"] = vs.Port
 	parameters["prot"] = vs.Protocol
 
-	if vs.Name != "" {
-		parameters["nickname"] = vs.Name
-	}
-	if vs.Transparent {
-		parameters["transparent"] = "Y"
-	} else {
-		parameters["transparent"] = "N"
-	}
-	if vs.CheckType != "" {
-		parameters["checktype"] = vs.CheckType
-	}
-	if vs.CheckURL != "" {
-		parameters["checkurl"] = vs.CheckURL
-	}
-	if vs.CheckPort != "" {
-		parameters["checkport"] = vs.CheckPort
-	}
-	if vs.SSLAcceleration {
-		parameters["sslacceleration"] = "Y"
-	} else {
-		parameters["sslacceleration"] = "N"
-	}
+	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
 	data := VirtualServiceResponse{}
 	err := c.Request("addvs", parameters, &data)
@@ -282,4 +273,41 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 	}
 
 	return data.VS, nil
+}
+
+func (c *Client) mapVirtualServiceParamsToRequestParams(vs VirtualServiceParams, parameters map[string]string) {
+	if vs.Name != "" {
+		parameters["nickname"] = vs.Name
+	}
+
+	if vs.Transparent {
+		parameters["transparent"] = "Y"
+	} else {
+		parameters["transparent"] = "N"
+	}
+
+	if vs.CheckType != "" {
+		parameters["checktype"] = vs.CheckType
+	}
+	if vs.CheckURL != "" {
+		parameters["checkurl"] = vs.CheckURL
+	}
+	if vs.CheckPort != "" {
+		parameters["checkport"] = vs.CheckPort
+	}
+
+	if vs.SSLAcceleration {
+		parameters["sslacceleration"] = "Y"
+	} else {
+		parameters["sslacceleration"] = "N"
+	}
+
+	if vs.AddVia != "" {
+		parameters["addvia"] = vs.AddVia
+	}
+
+	if vs.VStype != "" {
+		parameters["vstype"] = vs.VStype
+	}
+
 }
