@@ -50,17 +50,19 @@ type VirtualServiceList struct {
 }
 
 type VirtualServiceParams struct {
-	Name            string
-	IPAddress       string
-	Port            string
-	Protocol        string
-	CheckType       string
-	CheckURL        string
-	CheckPort       string
-	SSLAcceleration bool
-	Transparent     bool
-	AddVia          string
-	VStype          string
+	Name                    string
+	IPAddress               string
+	Port                    string
+	Protocol                string
+	CheckType               string
+	CheckURL                string
+	CheckPort               string
+	SSLAcceleration         bool
+	Transparent             bool
+	AddVia                  string
+	VStype                  string
+	ExtraRequestHeaderKey   string
+	ExtraRequestHeaderValue string
 }
 
 type VirtualServiceResponse struct {
@@ -122,6 +124,8 @@ type VirtualService struct {
 	OCSPVerify       string
 	NumberOfRSs      string
 	Rs               []RealServer `xml:"Rs"`
+	ExtraHdrKey      string
+	ExtraHdrValue    string
 }
 
 func (c *Client) ListVirtualServices() ([]VirtualService, error) {
@@ -304,6 +308,11 @@ func (c *Client) mapVirtualServiceParamsToRequestParams(vs VirtualServiceParams,
 
 	if vs.AddVia != "" {
 		parameters["addvia"] = vs.AddVia
+	}
+
+	if vs.ExtraRequestHeaderKey != "" && vs.ExtraRequestHeaderValue != "" {
+		parameters["extrahdrkey"] = vs.ExtraRequestHeaderKey
+		parameters["extrahdrvalue"] = vs.ExtraRequestHeaderValue
 	}
 
 	if vs.VStype != "" {
