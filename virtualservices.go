@@ -39,8 +39,8 @@ const (
 	VSAddViaXForwardedForNoVia   = "5"
 	VSAddViaViaOnly              = "6"
 	ContentRuleAddHeader         = "1"
-	ContentRuleUpdateHeader      = "2"
-	ContentRuleDeleteHeader      = "3"
+	ContentRuleUpdateHeader      = "3"
+	ContentRuleDeleteHeader      = "2"
 )
 
 type VirtualServiceListResponse struct {
@@ -241,12 +241,12 @@ func (c *Client) deleteVirtualService(parameters map[string]string) error {
 	return nil
 }
 
-func (c *Client) addHeaderContentRule(headerKey, headerValue string) error {
+func (c *Client) addHeaderContentRule(name, headerKey, headerValue string) error {
 	data := ContentRuleResponse{}
 
 	ruleParameters := make(map[string]string)
 	// Only accepts alphanumeric names
-	ruleParameters["name"] = headerKey
+	ruleParameters["name"] = name
 	// Add Header to HTTP Request
 	ruleParameters["type"] = ContentRuleAddHeader
 	ruleParameters["header"] = headerKey
@@ -260,12 +260,12 @@ func (c *Client) addHeaderContentRule(headerKey, headerValue string) error {
 	return nil
 }
 
-func (c *Client) updateHeaderContentRule(headerKey, headerValue string) error {
+func (c *Client) updateHeaderContentRule(name, headerKey, headerValue string) error {
 	data := ContentRuleResponse{}
 
 	ruleParameters := make(map[string]string)
 	// Only accepts alphanumeric names
-	ruleParameters["name"] = headerKey
+	ruleParameters["name"] = name
 	// Update Header to HTTP Request
 	ruleParameters["type"] = ContentRuleUpdateHeader
 	ruleParameters["header"] = headerKey
@@ -279,12 +279,12 @@ func (c *Client) updateHeaderContentRule(headerKey, headerValue string) error {
 	return nil
 }
 
-func (c *Client) deleteHeaderContentRule(headerKey string) error {
+func (c *Client) deleteHeaderContentRule(name, headerKey string) error {
 	data := ContentRuleResponse{}
 
 	ruleParameters := make(map[string]string)
 	// Only accepts alphanumeric names
-	ruleParameters["name"] = headerKey
+	ruleParameters["name"] = name
 	// Delete Header to HTTP Request
 	ruleParameters["type"] = ContentRuleDeleteHeader
 
@@ -312,7 +312,7 @@ func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualS
 	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
 	for key, value := range vs.Headers {
-		if err := c.updateHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1), value); err != nil {
+		if err := c.updateHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1), key, value); err != nil {
 			return VirtualService{}, err
 		}
 	}
@@ -357,7 +357,7 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
 	for key, value := range vs.Headers {
-		if err := c.addHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1), value); err != nil {
+		if err := c.addHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1), key, value); err != nil {
 			return VirtualService{}, err
 		}
 	}
