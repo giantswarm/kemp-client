@@ -254,7 +254,7 @@ func (c *Client) addHeaderContentRule(name, headerKey, headerValue string) error
 
 	err := c.Request("addrule", ruleParameters, &data)
 	if err != nil {
-		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to add header for virtual service %s '%#v'", headerKey, ruleParameters), errgo.Any)
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to add content rule %s with header %s and value %s for virtual service %s '%#v'", name, headerKey, headerValue, ruleParameters), errgo.Any)
 	}
 
 	return nil
@@ -273,7 +273,7 @@ func (c *Client) updateHeaderContentRule(name, headerKey, headerValue string) er
 
 	err := c.Request("modrule", ruleParameters, &data)
 	if err != nil {
-		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to update header rule for virtual service %s '%#v'", headerKey, ruleParameters), errgo.Any)
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to update content rule %s with header %s and value %s for virtual service %s '%#v'", name, headerKey, headerValue, ruleParameters), errgo.Any)
 	}
 
 	return nil
@@ -290,7 +290,7 @@ func (c *Client) deleteHeaderContentRule(name string) error {
 
 	err := c.Request("delrule", ruleParameters, &data)
 	if err != nil {
-		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to delete header for virtual service %s '%#v'", name, ruleParameters), errgo.Any)
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to delete  content rule %s header for virtual service '%#v'", name, ruleParameters), errgo.Any)
 	}
 	return nil
 }
