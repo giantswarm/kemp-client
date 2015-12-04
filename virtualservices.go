@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"strconv"
+	"strings"
 
 	"github.com/juju/errgo"
 )
@@ -37,6 +38,9 @@ const (
 	VSAddViaXForwardedForWithVia = "1"
 	VSAddViaXForwardedForNoVia   = "5"
 	VSAddViaViaOnly              = "6"
+	ContentRuleAddHeader         = "1"
+	ContentRuleUpdateHeader      = "3"
+	ContentRuleDeleteHeader      = "2"
 )
 
 type VirtualServiceListResponse struct {
@@ -49,24 +53,44 @@ type VirtualServiceList struct {
 	VS []VirtualService `xml:",any"`
 }
 
+type Header struct {
+	Key   string
+	Value string
+}
+
 type VirtualServiceParams struct {
-	Name            string
-	IPAddress       string
-	Port            string
-	Protocol        string
-	CheckType       string
-	CheckURL        string
-	CheckPort       string
-	SSLAcceleration bool
-	Transparent     bool
-	AddVia          string
-	VStype          string
+	Name                    string
+	IPAddress               string
+	Port                    string
+	Protocol                string
+	CheckType               string
+	CheckURL                string
+	CheckPort               string
+	SSLAcceleration         bool
+	Transparent             bool
+	AddVia                  string
+	VStype                  string
+	ExtraRequestHeaderKey   string
+	ExtraRequestHeaderValue string
+	Headers                 map[string]string
 }
 
 type VirtualServiceResponse struct {
 	Debug   string         `xml:",innerxml"`
 	XMLName xml.Name       `xml:"Response"`
 	VS      VirtualService `xml:"Success>Data"`
+}
+
+type ContentRuleResponse struct {
+	Debug   string      `xml:",innerxml"`
+	XMLName xml.Name    `xml:"Response"`
+	CR      ContentRule `xml:"Success>Data"`
+}
+
+type ContentRule struct {
+	Name        string `xml:"Name"`
+	Header      string `xml:"Header"`
+	HeaderValue string `xml:"HeaderValue"`
 }
 
 type VirtualService struct {
@@ -122,6 +146,8 @@ type VirtualService struct {
 	OCSPVerify       string
 	NumberOfRSs      string
 	Rs               []RealServer `xml:"Rs"`
+	ExtraHdrKey      string
+	ExtraHdrValue    string
 }
 
 func (c *Client) ListVirtualServices() ([]VirtualService, error) {
@@ -215,6 +241,60 @@ func (c *Client) deleteVirtualService(parameters map[string]string) error {
 	return nil
 }
 
+func (c *Client) addHeaderContentRule(name, headerKey, headerValue string) error {
+	data := ContentRuleResponse{}
+
+	ruleParameters := make(map[string]string)
+	// Only accepts alphanumeric names
+	ruleParameters["name"] = name
+	// Add Header to HTTP Request
+	ruleParameters["type"] = ContentRuleAddHeader
+	ruleParameters["header"] = headerKey
+	ruleParameters["replacement"] = headerValue
+
+	err := c.Request("addrule", ruleParameters, &data)
+	if err != nil {
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to add content rule %s with header %s and value %s for virtual service %s '%#v'", name, headerKey, headerValue, ruleParameters), errgo.Any)
+	}
+
+	return nil
+}
+
+func (c *Client) updateHeaderContentRule(name, headerKey, headerValue string) error {
+	data := ContentRuleResponse{}
+
+	ruleParameters := make(map[string]string)
+	// Only accepts alphanumeric names
+	ruleParameters["name"] = name
+	// Update Header to HTTP Request
+	ruleParameters["type"] = ContentRuleUpdateHeader
+	ruleParameters["header"] = headerKey
+	ruleParameters["replacement"] = headerValue
+
+	err := c.Request("modrule", ruleParameters, &data)
+	if err != nil {
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to update content rule %s with header %s and value %s for virtual service %s '%#v'", name, headerKey, headerValue, ruleParameters), errgo.Any)
+	}
+
+	return nil
+}
+
+func (c *Client) deleteHeaderContentRule(name string) error {
+	data := ContentRuleResponse{}
+
+	ruleParameters := make(map[string]string)
+	// Only accepts alphanumeric names
+	ruleParameters["name"] = name
+	// Delete Header to HTTP Request
+	ruleParameters["type"] = ContentRuleDeleteHeader
+
+	err := c.Request("delrule", ruleParameters, &data)
+	if err != nil {
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to delete  content rule %s header for virtual service '%#v'", name, ruleParameters), errgo.Any)
+	}
+	return nil
+}
+
 func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualService, error) {
 	parameters := make(map[string]string)
 	parameters["vs"] = strconv.Itoa(id)
@@ -231,6 +311,12 @@ func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualS
 
 	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
+	for key, value := range vs.Headers {
+		if err := c.updateHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1), key, value); err != nil {
+			return VirtualService{}, err
+		}
+	}
+
 	data := VirtualServiceResponse{}
 	err := c.Request("modvs", parameters, &data)
 	if err != nil {
@@ -239,6 +325,14 @@ func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualS
 
 	if c.debug {
 		fmt.Println("DEBUG:", data.Debug)
+	}
+
+	for key := range vs.Headers {
+		parameters["rule"] = strings.Replace(vs.Name+key, "-", "", -1)
+		err := c.Request("addrequestrule", parameters, &data)
+		if err != nil {
+			return VirtualService{}, errgo.NoteMask(err, fmt.Sprintf("kemp unable to add rule to the virtual service '%#v'", parameters), errgo.Any)
+		}
 	}
 
 	return data.VS, nil
@@ -262,6 +356,12 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 
 	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
+	for key, value := range vs.Headers {
+		if err := c.addHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1), key, value); err != nil {
+			return VirtualService{}, err
+		}
+	}
+
 	data := VirtualServiceResponse{}
 	err := c.Request("addvs", parameters, &data)
 	if err != nil {
@@ -270,6 +370,14 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 
 	if c.debug {
 		fmt.Println("DEBUG:", data.Debug)
+	}
+
+	for key := range vs.Headers {
+		parameters["rule"] = strings.Replace(vs.Name+key, "-", "", -1)
+		err := c.Request("addrequestrule", parameters, &data)
+		if err != nil {
+			return VirtualService{}, errgo.NoteMask(err, fmt.Sprintf("kemp unable to add rule to the virtual service '%#v'", parameters), errgo.Any)
+		}
 	}
 
 	return data.VS, nil
@@ -304,6 +412,11 @@ func (c *Client) mapVirtualServiceParamsToRequestParams(vs VirtualServiceParams,
 
 	if vs.AddVia != "" {
 		parameters["addvia"] = vs.AddVia
+	}
+
+	if vs.ExtraRequestHeaderKey != "" && vs.ExtraRequestHeaderValue != "" {
+		parameters["extrahdrkey"] = vs.ExtraRequestHeaderKey
+		parameters["extrahdrvalue"] = vs.ExtraRequestHeaderValue
 	}
 
 	if vs.VStype != "" {
