@@ -73,6 +73,7 @@ type VirtualServiceParams struct {
 	ExtraRequestHeaderKey   string
 	ExtraRequestHeaderValue string
 	Headers                 map[string]string
+	Rules                   []string
 }
 
 type VirtualServiceResponse struct {
@@ -339,6 +340,14 @@ func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualS
 		}
 	}
 
+	for _, rule := range vs.Rules {
+		parameters["rule"] = rule
+		err := c.Request("addrequestrule", parameters, &data)
+		if err != nil {
+			return VirtualService{}, errgo.NoteMask(err, fmt.Sprintf("kemp unable to add rule to the virtual service '%#v'", parameters), errgo.Any)
+		}
+	}
+
 	return data.VS, nil
 }
 
@@ -382,6 +391,14 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 
 	for key := range vs.Headers {
 		parameters["rule"] = strings.Replace(vs.Name+key, "-", "", -1)
+		err := c.Request("addrequestrule", parameters, &data)
+		if err != nil {
+			return VirtualService{}, errgo.NoteMask(err, fmt.Sprintf("kemp unable to add rule to the virtual service '%#v'", parameters), errgo.Any)
+		}
+	}
+
+	for _, rule := range vs.Rules {
+		parameters["rule"] = rule
 		err := c.Request("addrequestrule", parameters, &data)
 		if err != nil {
 			return VirtualService{}, errgo.NoteMask(err, fmt.Sprintf("kemp unable to add rule to the virtual service '%#v'", parameters), errgo.Any)
