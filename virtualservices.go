@@ -312,7 +312,11 @@ func (c *Client) UpdateVirtualService(id int, vs VirtualServiceParams) (VirtualS
 	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
 	for key, value := range vs.Headers {
-		if err := c.updateHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1), key, value); err != nil {
+		// Deleting the content rule http header as there isn't a truly update operation
+		if err := c.deleteHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1)); err != nil {
+			fmt.Println(err)
+		}
+		if err := c.addHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1), key, value); err != nil {
 			return VirtualService{}, err
 		}
 	}
@@ -357,6 +361,10 @@ func (c *Client) AddVirtualService(vs VirtualServiceParams) (VirtualService, err
 	c.mapVirtualServiceParamsToRequestParams(vs, parameters)
 
 	for key, value := range vs.Headers {
+		// Deleting the content rule http header as there isn't a truly update operation
+		if err := c.deleteHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1)); err != nil {
+			fmt.Println(err)
+		}
 		if err := c.addHeaderContentRule(strings.Replace(vs.Name+key, "-", "", -1), key, value); err != nil {
 			return VirtualService{}, err
 		}
