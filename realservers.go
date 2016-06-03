@@ -65,7 +65,7 @@ func (c *Client) addRealServer(parameters map[string]string) error {
 	data := RealServerResponse{}
 	err := c.Request("addrs", parameters, &data)
 	if err != nil {
-		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to delete real server '%#v'", parameters), errgo.Any)
+		return errgo.NoteMask(err, fmt.Sprintf("kemp unable to add real server '%#v'", parameters), errgo.Any)
 	}
 
 	return nil
