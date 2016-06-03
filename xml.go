@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"io"
 
-	"code.google.com/p/go-charset/charset"
-	_ "code.google.com/p/go-charset/data"
 	"github.com/juju/errgo"
+	"github.com/rogpeppe/go-charset/charset"
+	_ "github.com/rogpeppe/go-charset/data"
 )
 
 type ErrorResponse struct {
