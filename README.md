@@ -1,5 +1,10 @@
 # kemp-client
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/giantswarm/kemp-client)](https://goreportcard.com/report/github.com/giantswarm/kemp-client)
+[![Godoc](https://godoc.org/github.com/giantswarm/kemp-client?status.svg)](http://godoc.org/github.com/giantswarm/kemp-client)
+[![IRC Channel](https://img.shields.io/badge/irc-%23giantswarm-blue.svg)](https://kiwiirc.com/client/irc.freenode.net/#giantswarm)
+
+
 A client library for the API of Kemp LoadMaster load balancers.
 
 See [Kemp API Docs](https://kemptechnologies.com/files/support/documentation/KEMP_Restful%20API.pdf) for further information.
