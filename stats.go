@@ -17,19 +17,19 @@ type StatisticsResponse struct {
 
 // Statistics represents the statistics data returned by the API.
 type Statistics struct {
-	Totals         Totals                 `xml:"VStotals"`
-	VirtualServers VirtualServerStatsList `xml:"Vs"`
-	RealServers    RealServerStatsList    `xml:"Rs"`
+	Totals          Totals                  `xml:"VStotals"`
+	VirtualServices VirtualServiceStatsList `xml:"Vs"`
+	RealServers     RealServerStatsList     `xml:"Rs"`
 }
 
-// VirtualServerStatsList is a list of VirtualServerStats.
-type VirtualServerStatsList []VirtualServerStats
+// VirtualServiceStatsList is a list of VirtualServiceStats.
+type VirtualServiceStatsList []VirtualServiceStats
 
-func (l VirtualServerStatsList) Len() int {
+func (l VirtualServiceStatsList) Len() int {
 	return len(l)
 }
 
-func (l VirtualServerStatsList) Less(i int, j int) bool {
+func (l VirtualServiceStatsList) Less(i int, j int) bool {
 	if l[i].Address == l[j].Address {
 		return l[i].Port < l[j].Port
 	}
@@ -37,7 +37,7 @@ func (l VirtualServerStatsList) Less(i int, j int) bool {
 	return l[i].Address < l[j].Address
 }
 
-func (l VirtualServerStatsList) Swap(i int, j int) {
+func (l VirtualServiceStatsList) Swap(i int, j int) {
 	l[i], l[j] = l[j], l[i]
 }
 
@@ -68,8 +68,8 @@ type Totals struct {
 	PacketsPerSec     int `xml:"PktsPerSec"`
 }
 
-// VirtualServerStats represents statistics for a Virtual Server.
-type VirtualServerStats struct {
+// VirtualServiceStats represents statistics for a Virtual Service.
+type VirtualServiceStats struct {
 	Index             int
 	Address           string `xml:"VSAddress"`
 	Port              int    `xml:"VSPort"`
@@ -120,7 +120,7 @@ func (c *Client) GetStatistics() (Statistics, error) {
 		fmt.Println("DEBUG:", data.Debug)
 	}
 
-	sort.Sort(data.Data.VirtualServers)
+	sort.Sort(data.Data.VirtualServices)
 	sort.Sort(data.Data.RealServers)
 
 	return data.Data, nil
