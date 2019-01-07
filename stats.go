@@ -20,6 +20,9 @@ type Statistics struct {
 	Totals          Totals                  `xml:"VStotals"`
 	VirtualServices VirtualServiceStatsList `xml:"Vs"`
 	RealServers     RealServerStatsList     `xml:"Rs"`
+	TPS             TPS                     `xml:"TPS"`
+	CPU             CPU                     `xml:"CPU>total"`	
+	Memory          Memory                  `xml:"Memory"`
 }
 
 // VirtualServiceStatsList is a list of VirtualServiceStats.
@@ -106,6 +109,29 @@ type RealServerStats struct {
 	Persist           int
 }
 
+// TPS represents transactions per second.
+type TPS struct {
+	Total int
+	SSL   int
+}
+
+// CPU repressents the CPU statisctics
+type CPU struct {
+	User      int
+	System    int
+	Idle      int
+	IOWaiting int
+	Used      int  // This will be 100 - Idle
+}
+
+// Memory represents memory statistics
+type Memory struct {
+	Memused        int `xml:"memused"`
+	Percentmemused int `xml:"percentmemused"`
+	Memfree        int `xml:"memfree"`
+	Percentmemfree int `xml:"percentmemfree"`
+}
+
 // GetStatistics calls the API, and returns a Statistics object.
 func (c *Client) GetStatistics() (Statistics, error) {
 	parameters := make(map[string]string)
@@ -122,6 +148,9 @@ func (c *Client) GetStatistics() (Statistics, error) {
 
 	sort.Sort(data.Data.VirtualServices)
 	sort.Sort(data.Data.RealServers)
-
+	
+	// Set the CPU percentage that has been used (since only idle percentage is provided)
+	data.Data.CPU.Used = 100 - data.Data.CPU.Idle
+	
 	return data.Data, nil
 }
