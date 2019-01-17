@@ -130,10 +130,10 @@ type CPU struct {
 
 // Memory represents memory statistics
 type Memory struct {
-	Memused        int `xml:"memused"`
-	Percentmemused int `xml:"percentmemused"`
-	Memfree        int `xml:"memfree"`
-	Percentmemfree int `xml:"percentmemfree"`
+	MemUsed        int `xml:"memused"`
+	PercentMemUsed int `xml:"percentmemused"`
+	MemFree        int `xml:"memfree"`
+	PercentMemFree int `xml:"percentmemfree"`
 }
 
 // GetStatistics calls the API, and returns a Statistics object.
