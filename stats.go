@@ -65,10 +65,14 @@ func (l RealServerStatsList) Swap(i int, j int) {
 
 // Totals represents global statistics data.
 type Totals struct {
-	ConnectionsPerSec int `xml:"ConnsPerSec"`
-	BitsPerSec        int
-	BytesPerSec       int
-	PacketsPerSec     int `xml:"PktsPerSec"`
+        ConnectionsPerSec int `xml:"ConnsPerSec"`
+        TotalConnections  int `xml:"TotalConns"`
+        BitsPerSec        int 
+        TotalBits         uint64
+        BytesPerSec       int 
+        TotalBytes        uint64
+        PacketsPerSec     int `xml:"PktsPerSec"`
+        TotalPackets      uint64
 }
 
 // VirtualServiceStats represents statistics for a Virtual Service.
@@ -148,9 +152,9 @@ func (c *Client) GetStatistics() (Statistics, error) {
 
 	sort.Sort(data.Data.VirtualServices)
 	sort.Sort(data.Data.RealServers)
-	
+
 	// Set the CPU percentage that has been used (since only idle percentage is provided)
 	data.Data.CPU.Used = 100 - data.Data.CPU.Idle
-	
+
 	return data.Data, nil
 }
