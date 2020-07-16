@@ -2,7 +2,6 @@
 
 [![Go Report Card](https://goreportcard.com/badge/github.com/giantswarm/kemp-client)](https://goreportcard.com/report/github.com/giantswarm/kemp-client)
 [![Godoc](https://godoc.org/github.com/giantswarm/kemp-client?status.svg)](http://godoc.org/github.com/giantswarm/kemp-client)
-[![IRC Channel](https://img.shields.io/badge/irc-%23giantswarm-blue.svg)](https://kiwiirc.com/client/irc.freenode.net/#giantswarm)
 
 
 A client library for the API of Kemp LoadMaster load balancers.
@@ -18,7 +17,6 @@ Clone the git repository: https://github.com/giantswarm/kemp-client.git
 ## Contact
 
 - Mailing list: [giantswarm](https://groups.google.com/forum/!forum/giantswarm)
-- IRC: #[giantswarm](irc://irc.freenode.org:6667/#giantswarm) on freenode.org
 - Bugs: [issues](https://github.com/giantswarm/kemp-client/issues)
 
 ## Contributing & Reporting Bugs
